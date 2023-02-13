@@ -3,8 +3,9 @@ const ROUNDS = 6;
 const letters = document.querySelectorAll(".scoreboard-letter");
 const loadingDiv = document.querySelector(".info-bar");
 
-// init function so I can use "await"
+//  init function so I can use "await"
 async function init() {
+  // the state for the app
   let currentRow = 0;
   let currentGuess = "";
   let done = false;
@@ -23,12 +24,13 @@ async function init() {
     if (currentGuess.length < ANSWER_LENGTH) {
       currentGuess += letter;
     } else {
-      current = currentGuess.substring(0, currentGuess.length - 1) + letter;
+      currentGuess = currentGuess.substring(0, currentGuess.length - 1) + letter;
     }
-
+  
     letters[currentRow * ANSWER_LENGTH + currentGuess.length - 1].innerText =
       letter;
   }
+  
 
   // use tries to enter a guess
   async function commit() {
@@ -38,6 +40,7 @@ async function init() {
     }
 
     // check the API to see if it's a valid word
+    
     isLoading = true;
     setLoading(isLoading);
     const res = await fetch("https://words.dev-apis.com/validate-word", {
@@ -58,7 +61,8 @@ async function init() {
     const map = makeMap(wordParts);
     let allRight = true;
 
-    // first pass just finds correct letters
+    // first pass just finds correct letters so we can mark those as
+    // correct first
     for (let i = 0; i < ANSWER_LENGTH; i++) {
       if (guessParts[i] === wordParts[i]) {
         // mark as correct
@@ -73,11 +77,12 @@ async function init() {
       if (guessParts[i] === wordParts[i]) {
         
       } else if (map[guessParts[i]] && map[guessParts[i]] > 0) {
+        // mark as close
         allRight = false;
         letters[currentRow * ANSWER_LENGTH + i].classList.add("close");
         map[guessParts[i]]--;
       } else {
-        
+        // wrong
         allRight = false;
         letters[currentRow * ANSWER_LENGTH + i].classList.add("wrong");
       }
@@ -86,17 +91,19 @@ async function init() {
     currentRow++;
     currentGuess = "";
     if (allRight) {
+      // win
       alert("you win");
       document.querySelector(".brand").classList.add("winner");
       done = true;
     } else if (currentRow === ROUNDS) {
-      
+      // lose
       alert(`you lose, the word was ${word}`);
       done = true;
     }
   }
 
   // user hits backspace, if the the length of the string is 0 then do
+  // nothing
   function backspace() {
     currentGuess = currentGuess.substring(0, currentGuess.length - 1);
     letters[currentRow * ANSWER_LENGTH + currentGuess.length].innerText = "";
@@ -107,7 +114,7 @@ async function init() {
     for (let i = 0; i < ANSWER_LENGTH; i++) {
       letters[currentRow * ANSWER_LENGTH + i].classList.remove("invalid");
 
-      
+      // long enough for the browser to repaint without the "invalid class" so we can then add it again
       setTimeout(
         () => letters[currentRow * ANSWER_LENGTH + i].classList.add("invalid"),
         10
@@ -116,7 +123,6 @@ async function init() {
   }
 
   // listening for event keys and routing to the right function
-  // we listen on keydown so we can catch Enter and Backspace
   document.addEventListener("keydown", function handleKeyPress(event) {
     if (done || isLoading) {
       
@@ -132,12 +138,13 @@ async function init() {
     } else if (isLetter(action)) {
       addLetter(action.toUpperCase());
     } else {
-    
+      
     }
   });
 }
 
-// a little function to check to see if a character is alphabet letter 
+// a little function to check to see if a character is alphabet letter
+
 function isLetter(letter) {
   return /^[a-zA-Z]$/.test(letter);
 }
@@ -147,8 +154,8 @@ function setLoading(isLoading) {
   loadingDiv.classList.toggle("hidden", !isLoading);
 }
 
-// takes an array of letters (like ['E', 'L', 'I', 'T', 'E']) and creates
-// an object out of it (like {E: 2, L: 1, I: 1, T: 1})
+// this function takes an array and returns an object 
+
 function makeMap(array) {
   const obj = {};
   for (let i = 0; i < array.length; i++) {
