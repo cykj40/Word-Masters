@@ -18,3 +18,7 @@ HTML, CSS, Vanilla Javascript and hooked up to this https://words.dev-apis.com/w
 3. If you guess the correct answer within 6 tries
    you win. If you dont you lose but at least the 
    program will tell you what the word is.
+
+## Link To Game: 
+
+https://cykj40.github.io/Word-Masters/
